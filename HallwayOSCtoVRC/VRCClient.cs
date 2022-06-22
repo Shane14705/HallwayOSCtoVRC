@@ -22,6 +22,7 @@ namespace HallwayOSCtoVRC
         private bool m_listening = true;
 
         private string m_currentAviID = null;
+        public event EventHandler AvatarUpdated;
 
         /*
          * Put logic for changing connections when addresses/ports are changed in these setters
@@ -80,6 +81,8 @@ namespace HallwayOSCtoVRC
         private async Task HandleAviChange()
         {
             throw new NotImplementedException();
+
+            //AvatarUpdated?.Invoke(this);
         }
     }
 
