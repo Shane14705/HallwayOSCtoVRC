@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,7 +23,9 @@ namespace HallwayOSCtoVRC
     {
         public MainWindow()
         {
+            Console.WriteLine("hello world!");
             InitializeComponent();
+            VrcClient client = new VrcClient();
         }
     }
 }

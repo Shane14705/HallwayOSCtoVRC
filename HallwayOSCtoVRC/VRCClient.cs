@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using CoreOSC;
 using CoreOSC.IO;
 
@@ -58,9 +59,14 @@ namespace HallwayOSCtoVRC
             m_address = "127.0.0.1";
             m_receivePort = 9001;
             m_sendPort = 9000;
+            Main();
         }
 
-        private async void ListenLoop()
+        private void Main()
+        {
+            ListenLoop();
+        }
+        public async Task ListenLoop()
         {
             while (m_listening)
             {
@@ -71,7 +77,9 @@ namespace HallwayOSCtoVRC
                     if (response.Address.Value == "/avatar/change")
                     {
                         m_currentAviID = (string)(response.Arguments.ElementAt(0));
-                        HandleAviChange();
+                        MessageBox.Show(m_currentAviID);
+                        return;
+                        //HandleAviChange();
                     }
                 }
             }
