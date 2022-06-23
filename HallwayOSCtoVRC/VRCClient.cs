@@ -62,6 +62,7 @@ namespace HallwayOSCtoVRC
             sender = new OscSender(m_address, m_sendPort);
             receiver.Connect();
             listenThread = new Thread(new ThreadStart(ListenLoop));
+            listenThread.Start();
 
         }
 
@@ -69,16 +70,21 @@ namespace HallwayOSCtoVRC
         public VrcClient() : this("127.0.0.1", 9001, 9000) {}
 
 
-        private void Main()
+        private void StopListening()
         {
-            ListenLoop();
+            receiver.Close();
+            listenThread.Join();
         }
 
         private void ListenLoop()
         {
-            while (m_listening)
+            while (receiver.State != OscSocketState.Closed)
             {
-                
+                if (receiver.State == OscSocketState.Connected)
+                {
+                    OscPacket packet = receiver.Receive();
+                    Console.WriteLine(packet.ToString());
+                }
             }
             
         }
