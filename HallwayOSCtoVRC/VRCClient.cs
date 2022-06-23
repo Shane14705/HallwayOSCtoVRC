@@ -98,7 +98,7 @@ namespace HallwayOSCtoVRC
 
         ~VrcClient()
         {
-
+            StopListening();
         }
     }
 
