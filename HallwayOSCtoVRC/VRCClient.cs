@@ -70,17 +70,19 @@ namespace HallwayOSCtoVRC
         {
             while (m_listening)
             {
-                using (UdpClient client = new UdpClient(m_address, m_receivePort))
+                Console.WriteLine("Listening...");
+                using (UdpClient client = new UdpClient("127.0.0.1", 9001))
                 {
                     OscMessage response = await client.ReceiveMessageAsync();
+                    Console.WriteLine("heard something!");
+                    Console.WriteLine(response.Address.Value);
 
-                    if (response.Address.Value == "/avatar/change")
-                    {
-                        m_currentAviID = (string)(response.Arguments.ElementAt(0));
-                        MessageBox.Show(m_currentAviID);
-                        return;
-                        //HandleAviChange();
-                    }
+                    // if (response.Address.Value == "/avatar/change")
+                    // {
+                    //     m_currentAviID = (string)(response.Arguments.ElementAt(0));
+                    //     Console.WriteLine("HEARD!");
+                    //     //HandleAviChange();
+                    // }
                 }
             }
             
