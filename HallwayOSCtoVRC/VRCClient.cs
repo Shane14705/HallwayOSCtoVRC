@@ -5,8 +5,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using CoreOSC;
-using CoreOSC.IO;
 
 namespace HallwayOSCtoVRC
 {
@@ -70,18 +68,7 @@ namespace HallwayOSCtoVRC
         {
             while (m_listening)
             {
-                using (UdpClient client = new UdpClient(m_address, m_receivePort))
-                {
-                    OscMessage response = await client.ReceiveMessageAsync();
-
-                    if (response.Address.Value == "/avatar/change")
-                    {
-                        m_currentAviID = (string)(response.Arguments.ElementAt(0));
-                        MessageBox.Show(m_currentAviID);
-                        return;
-                        //HandleAviChange();
-                    }
-                }
+                
             }
             
         }
