@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Rug.Osc;
 
 namespace HallwayOSCtoVRC
 {
@@ -15,21 +18,26 @@ namespace HallwayOSCtoVRC
     {
 
         //Connection Parameters
-        private string m_address = "127.0.0.1";
-        private int m_receivePort = 9001;
-        private int m_sendPort = 9000;
+        private IPAddress m_address;
+        private int m_receivePort;
+        private int m_sendPort;
         private bool m_listening = true;
 
         private string m_currentAviID = null;
+        private Thread listenThread;
+        private OscReceiver receiver;
+        private OscSender sender;
         public event EventHandler AvatarUpdated;
+
+        
 
         /*
          * Put logic for changing connections when addresses/ports are changed in these setters
          */
         public string Address
         {
-            get => m_address;
-            set => m_address = value;
+            get => m_address.ToString();
+            set => m_address = IPAddress.Parse(value);
         }
 
         public int ReceivePort
@@ -46,25 +54,27 @@ namespace HallwayOSCtoVRC
 
         //Initiates a VrcClient and connects it to the user's VRChat instance using the specified connection parameters
         public VrcClient(string address, int receivePort, int sendPort) {
-            m_address = address;
-            m_receivePort = receivePort;
-            m_sendPort = sendPort;
+            Address = address;
+            ReceivePort = receivePort;
+            SendPort = sendPort;
+
+            receiver = new OscReceiver(m_address, m_receivePort);
+            sender = new OscSender(m_address, m_sendPort);
+            receiver.Connect();
+            listenThread = new Thread(new ThreadStart(ListenLoop));
+
         }
 
         //Initiates a VrcClient and connects it to the user's VRChat instance with default connection parameters
-        public VrcClient()
-        {
-            m_address = "127.0.0.1";
-            m_receivePort = 9001;
-            m_sendPort = 9000;
-            Main();
-        }
+        public VrcClient() : this("127.0.0.1", 9001, 9000) {}
+
 
         private void Main()
         {
             ListenLoop();
         }
-        public async Task ListenLoop()
+
+        private void ListenLoop()
         {
             while (m_listening)
             {
@@ -78,6 +88,11 @@ namespace HallwayOSCtoVRC
             throw new NotImplementedException();
 
             //AvatarUpdated?.Invoke(this);
+        }
+
+        ~VrcClient()
+        {
+
         }
     }
 
