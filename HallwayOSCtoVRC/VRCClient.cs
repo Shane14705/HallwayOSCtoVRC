@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -28,7 +29,7 @@ namespace HallwayOSCtoVRC
         private OscReceiver receiver;
         private OscSender sender;
         public event EventHandler AvatarUpdated;
-
+        private string AviOscConfigDir;
 
         
         /*
@@ -57,6 +58,8 @@ namespace HallwayOSCtoVRC
             Address = address;
             ReceivePort = receivePort;
             SendPort = sendPort;
+            AviOscConfigDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                .Replace("Roaming", "LocalLow"), "\\VRChat\\VRChat\\OSC\\");
 
             receiver = new OscReceiver(m_address, m_receivePort);
             sender = new OscSender(m_address, m_sendPort);
@@ -84,6 +87,13 @@ namespace HallwayOSCtoVRC
                 {
                     OscPacket packet = receiver.Receive();
                     Console.WriteLine(packet.ToString());
+                    if (packet.ToString()!.StartsWith("/avatar/change"))
+                    {
+                        /*TODO: Check if the "user_id" portion of the avatar osc config path is the id of the user wearing the avatar, or the one who uploaded it.
+                         If necessary, we can have the user sign into the VRC api so that we can get user ids of publishers by avatar and what not.
+                        */
+                        //using (FileStream fs = File.OpenRead(, )))
+                    }
                 }
             }
             
