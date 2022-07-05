@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using CoreOSC;
-using CoreOSC.IO;
+using Rug.Osc;
 
 namespace HallwayOSCtoVRC
 {
@@ -17,21 +19,26 @@ namespace HallwayOSCtoVRC
     {
 
         //Connection Parameters
-        private string m_address = "127.0.0.1";
-        private int m_receivePort = 9001;
-        private int m_sendPort = 9000;
+        private IPAddress m_address;
+        private int m_receivePort;
+        private int m_sendPort;
         private bool m_listening = true;
 
         private string m_currentAviID = null;
+        private Thread listenThread;
+        private OscReceiver receiver;
+        private OscSender sender;
         public event EventHandler AvatarUpdated;
+        private string AviOscConfigDir;
 
+        
         /*
          * Put logic for changing connections when addresses/ports are changed in these setters
          */
         public string Address
         {
-            get => m_address;
-            set => m_address = value;
+            get => m_address.ToString();
+            set => m_address = IPAddress.Parse(value);
         }
 
         public int ReceivePort
@@ -48,51 +55,54 @@ namespace HallwayOSCtoVRC
 
         //Initiates a VrcClient and connects it to the user's VRChat instance using the specified connection parameters
         public VrcClient(string address, int receivePort, int sendPort) {
-            m_address = address;
-            m_receivePort = receivePort;
-            m_sendPort = sendPort;
+            Address = address;
+            ReceivePort = receivePort;
+            SendPort = sendPort;
+            AviOscConfigDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                .Replace("Roaming", "LocalLow"), "\\VRChat\\VRChat\\OSC\\");
+
+            receiver = new OscReceiver(m_address, m_receivePort);
+            sender = new OscSender(m_address, m_sendPort);
+            receiver.Connect();
+            listenThread = new Thread(new ThreadStart(ListenLoop));
+            listenThread.Start();
+
         }
 
         //Initiates a VrcClient and connects it to the user's VRChat instance with default connection parameters
-        public VrcClient()
+        public VrcClient() : this("127.0.0.1", 9001, 9000) {}
+
+
+        private void StopListening()
         {
-            m_address = "127.0.0.1";
-            m_receivePort = 9001;
-            m_sendPort = 9000;
-            Main();
+            receiver.Close();
+            listenThread.Join();
         }
 
-        private void Main()
+        private void ListenLoop()
         {
-            ListenLoop();
-        }
-        public async Task ListenLoop()
-        {
-            while (m_listening)
+            while (receiver.State != OscSocketState.Closed)
             {
-                Console.WriteLine("Listening...");
-                using (UdpClient client = new UdpClient("127.0.0.1", 9001))
+                if (receiver.State == OscSocketState.Connected)
                 {
-                    OscMessage response = await client.ReceiveMessageAsync();
-                    Console.WriteLine("heard something!");
-                    Console.WriteLine(response.Address.Value);
-
-                    // if (response.Address.Value == "/avatar/change")
-                    // {
-                    //     m_currentAviID = (string)(response.Arguments.ElementAt(0));
-                    //     Console.WriteLine("HEARD!");
-                    //     //HandleAviChange();
-                    // }
+                    OscPacket packet = receiver.Receive();
+                    Console.WriteLine(packet.ToString());
+                    if (packet.ToString()!.StartsWith("/avatar/change"))
+                    {
+                        /*TODO: Check if the "user_id" portion of the avatar osc config path is the id of the user wearing the avatar, or the one who uploaded it.
+                         If necessary, we can have the user sign into the VRC api so that we can get user ids of publishers by avatar and what not.
+                        */
+                        //using (FileStream fs = File.OpenRead(, )))
+                    }
                 }
             }
             
         }
 
-        private async Task HandleAviChange()
-        {
-            throw new NotImplementedException();
 
-            //AvatarUpdated?.Invoke(this);
+        ~VrcClient()
+        {
+            StopListening();
         }
     }
 

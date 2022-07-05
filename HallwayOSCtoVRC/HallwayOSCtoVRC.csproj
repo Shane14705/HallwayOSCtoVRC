@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CoreOSC" Version="1.0.0" />
+    <PackageReference Include="Rug.Osc" Version="1.2.5" />
     <PackageReference Include="VRChat.API" Version="1.7.1" />
   </ItemGroup>
 
