@@ -1,6 +1,9 @@
 #pragma once
-#include <boost\asio.hpp>;
-#include <boost\array.hpp>;
+
+#include <boost\asio.hpp>
+#include <boost\array.hpp>
+#include <boost\bind.hpp>
+
 class OSCServer
 {
 public:
@@ -11,7 +14,7 @@ public:
 
 private:
 	boost::asio::ip::udp::socket socket_;
-	boost::array<int, 8> recv_buff;
 	void start_listening();
+	void handle_receive(const boost::system::error_code& error, std::size_t numBytes);
 };
 
