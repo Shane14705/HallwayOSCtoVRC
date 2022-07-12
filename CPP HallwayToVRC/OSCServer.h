@@ -14,6 +14,8 @@ public:
 
 private:
 	boost::asio::ip::udp::socket socket_;
+	std::vector<char>* vBuffer;
+	boost::asio::mutable_buffer incoming;
 	void start_listening();
 	void handle_receive(const boost::system::error_code& error, std::size_t numBytes);
 };
