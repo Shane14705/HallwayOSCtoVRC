@@ -7,9 +7,9 @@ int main(void)
 	std::cout << "Hello World!";
 	boost::asio::io_context io_context;
 	OSCServer server(io_context);
-	io_context.run();
+	
 	while (true)
 	{
-		
+		io_context.run();
 	}
 }

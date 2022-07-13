@@ -14,8 +14,10 @@ public:
 
 private:
 	boost::asio::ip::udp::socket socket_;
-	std::vector<char>* vBuffer;
+	//boost::array<char, 1024> vBuffer;
+	std::vector<char> vBuffer;
 	boost::asio::mutable_buffer incoming;
+	boost::asio::ip::udp::endpoint myEP;
 	void start_listening();
 	void handle_receive(const boost::system::error_code& error, std::size_t numBytes);
 };
